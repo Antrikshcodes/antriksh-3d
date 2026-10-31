@@ -19,6 +19,7 @@ import { DeskLamp } from "@/components/objects/DeskLamp";
 import { RoboticsFigurine } from "@/components/objects/RoboticsFigurine";
 import { Trophies } from "@/components/objects/Trophies";
 import { BooksAndStationery } from "@/components/objects/BooksAndStationery";
+import { StudioParticles } from "@/components/environment/StudioParticles";
 import { CameraController } from "@/components/camera/CameraController";
 
 export function WorkspaceScene() {
@@ -59,6 +60,9 @@ export function WorkspaceScene() {
           <RoboticsFigurine />
           <Trophies />
           <BooksAndStationery />
+
+          {/* Atmospheric Floating Studio Dust Particles */}
+          <StudioParticles count={45} />
 
           {/* Realistic Ground Contact Shadows */}
           <ContactShadows

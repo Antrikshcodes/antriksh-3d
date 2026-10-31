@@ -1,7 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import { CameraViewKey } from "@/types";
+import { CameraViewKey, IntroPhase } from "@/types";
+import { soundEngine } from "@/utils/audioEngine";
 
 interface WorkspaceState {
   currentView: CameraViewKey;
@@ -12,6 +13,8 @@ interface WorkspaceState {
   performanceTier: "high" | "medium" | "low";
   soundEnabled: boolean;
   reducedMotion: boolean;
+  introPhase: IntroPhase;
+  activeStoryChapter: number;
 
   // Actions
   setView: (view: CameraViewKey) => void;
@@ -23,9 +26,13 @@ interface WorkspaceState {
   setPerformanceTier: (tier: "high" | "medium" | "low") => void;
   toggleReducedMotion: () => void;
   resetToOverview: () => void;
+  setIntroPhase: (phase: IntroPhase) => void;
+  skipIntro: () => void;
+  setActiveStoryChapter: (ch: number) => void;
+  toggleSound: () => void;
 }
 
-export const useWorkspaceStore = create<WorkspaceState>((set) => ({
+export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentView: "overview",
   hoveredObject: null,
   selectedObject: null,
@@ -34,23 +41,31 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   performanceTier: "high",
   soundEnabled: false,
   reducedMotion: false,
+  introPhase: "dark",
+  activeStoryChapter: 0,
 
-  setView: (view) =>
+  setView: (view) => {
+    soundEngine.playSelectSound();
     set({
       currentView: view,
       isPanelOpen: view !== "overview",
       selectedObject: view === "overview" ? null : view,
-    }),
+    });
+  },
 
-  setHoveredObject: (obj) =>
-    set((state) => (state.hoveredObject === obj ? state : { hoveredObject: obj })),
+  setHoveredObject: (obj) => {
+    if (obj) soundEngine.playHoverSound();
+    set((state) => (state.hoveredObject === obj ? state : { hoveredObject: obj }));
+  },
 
-  setSelectedObject: (obj) =>
+  setSelectedObject: (obj) => {
+    if (obj) soundEngine.playSelectSound();
     set({
       selectedObject: obj,
       currentView: obj ?? "overview",
       isPanelOpen: obj !== null,
-    }),
+    });
+  },
 
   setIsTransitioning: (val) =>
     set((state) => (state.isTransitioning === val ? state : { isTransitioning: val })),
@@ -67,12 +82,32 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   toggleReducedMotion: () =>
     set((state) => ({ reducedMotion: !state.reducedMotion })),
 
-  resetToOverview: () =>
+  resetToOverview: () => {
+    soundEngine.playSelectSound();
     set({
       currentView: "overview",
       selectedObject: null,
       isPanelOpen: false,
-    }),
+    });
+  },
+
+  setIntroPhase: (phase) => {
+    if (phase === "lighting" || phase === "screen") {
+      soundEngine.playWakeupSound();
+    }
+    set({ introPhase: phase });
+  },
+
+  skipIntro: () =>
+    set({ introPhase: "complete" }),
+
+  setActiveStoryChapter: (ch) =>
+    set((state) => (state.activeStoryChapter === ch ? state : { activeStoryChapter: ch })),
+
+  toggleSound: () => {
+    const isNowOn = soundEngine.toggle();
+    set({ soundEnabled: isNowOn });
+  },
 }));
 
 export const getWorkspaceState = () => useWorkspaceStore.getState();

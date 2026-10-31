@@ -1,10 +1,27 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { InteractiveWrapper } from "@/components/interactions/InteractiveWrapper";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 export function Monitor() {
+  const isApproached = useWorkspaceStore((s) => s.currentView === "monitor" || s.hoveredObject === "monitor");
+  const biasLightRef = useRef<THREE.PointLight>(null);
+
+  // Curved monitor backlight awakens dynamically when approached
+  useFrame((_, delta) => {
+    if (biasLightRef.current) {
+      const targetIntensity = isApproached ? 2.0 : 0.85;
+      biasLightRef.current.intensity = THREE.MathUtils.damp(
+        biasLightRef.current.intensity,
+        targetIntensity,
+        6,
+        delta
+      );
+    }
+  });
   // Curved geometry parameters (1800R curvature)
   const curveRadius = 1.8;
   const screenHeight = 0.36;
@@ -402,6 +419,7 @@ export function Monitor() {
 
           {/* Ambient Bias Glow behind Curved Monitor onto Acoustic Slats Wall */}
           <pointLight
+            ref={biasLightRef}
             position={[0, 0, curveRadius - 0.12]}
             color="#00f0ff"
             intensity={1.1}

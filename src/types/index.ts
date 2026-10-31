@@ -10,6 +10,8 @@ export type CameraViewKey =
   | "trophyShelf"
   | "phone";
 
+export type IntroPhase = "dark" | "lighting" | "screen" | "title" | "complete";
+
 export interface CameraPositionConfig {
   position: [number, number, number];
   target: [number, number, number];

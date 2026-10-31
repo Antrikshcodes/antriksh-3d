@@ -1,8 +1,54 @@
 "use client";
 
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 export function CoffeeMug() {
+  const steamGroupRef = useRef<THREE.Group>(null);
+
+  // Generate steam particle data
+  const particles = useMemo(() => {
+    return Array.from({ length: 16 }, (_, i) => ({
+      baseY: (i / 16) * 0.14,
+      speed: 0.02 + (i % 3) * 0.01,
+      swayFreq: 1.5 + (i % 4) * 0.5,
+      swayAmp: 0.006 + (i % 3) * 0.003,
+      phase: i * 0.4,
+      scale: 0.008 + (i / 16) * 0.018,
+    }));
+  }, []);
+
+  // Soft billowing animation of coffee steam
+  useFrame((state, delta) => {
+    if (!steamGroupRef.current) return;
+    const time = state.clock.getElapsedTime();
+
+    steamGroupRef.current.children.forEach((child, i) => {
+      const p = particles[i];
+      if (!p) return;
+
+      // Upward progress
+      let newY = child.position.y + p.speed * delta;
+      if (newY > 0.16) {
+        newY = 0.01;
+      }
+      child.position.y = newY;
+
+      // Horizontal subtle convection sway
+      child.position.x = Math.sin(time * p.swayFreq + p.phase) * p.swayAmp;
+      child.position.z = Math.cos(time * p.swayFreq * 0.8 + p.phase) * (p.swayAmp * 0.6);
+
+      // Fade out as it ascends
+      const normalizedHeight = Math.min(Math.max((newY - 0.01) / 0.15, 0), 1);
+      const opacity = Math.sin(normalizedHeight * Math.PI) * 0.22;
+      const mat = (child as THREE.Mesh).material as THREE.MeshBasicMaterial;
+      if (mat) {
+        mat.opacity = opacity;
+      }
+    });
+  });
+
   return (
     <group
       name="coffee-mug"
@@ -54,7 +100,21 @@ export function CoffeeMug() {
           metalness={0.1}
         />
       </mesh>
+
+      {/* Delicate Coffee Steam Particles */}
+      <group ref={steamGroupRef} position={[0, 0.08, 0]}>
+        {particles.map((p, idx) => (
+          <mesh key={idx} position={[0, p.baseY, 0]}>
+            <sphereGeometry args={[p.scale, 8, 8]} />
+            <meshBasicMaterial
+              color="#e2e8f0"
+              transparent
+              opacity={0.12}
+              depthWrite={false}
+            />
+          </mesh>
+        ))}
+      </group>
     </group>
   );
 }
-

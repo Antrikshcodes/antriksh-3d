@@ -9,10 +9,10 @@ export function RoboticsFigurine() {
   const visorRef = useRef<THREE.MeshBasicMaterial>(null);
 
   // Subtle breathing pulse on the optic visor
-  useFrame(({ clock }) => {
+  useFrame((state) => {
     if (visorRef.current) {
-      const t = clock.getElapsedTime();
-      visorRef.current.color.setHSL(0.52, 1, 0.5 + Math.sin(t * 2) * 0.15);
+      const t = state.clock.getElapsedTime();
+      visorRef.current.color.setHSL(0.52, 1, 0.5 + Math.sin(t * 2.2) * 0.15);
     }
   });
 

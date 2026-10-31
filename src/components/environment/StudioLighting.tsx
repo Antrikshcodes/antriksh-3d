@@ -2,21 +2,65 @@
 
 import { useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 export function StudioLighting() {
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
   const deskSpotRef = useRef<THREE.SpotLight>(null);
+  const ambientRef = useRef<THREE.AmbientLight>(null);
+  const fillLightRef = useRef<THREE.DirectionalLight>(null);
+
+  const introPhase = useWorkspaceStore((s) => s.introPhase);
+
+  // Animate lighting awakening during the cinematic introduction
+  useFrame((_, delta) => {
+    let targetAmbient = 0.65;
+    let targetKey = 2.2;
+    let targetSpot = 3.0;
+    let targetFill = 0.55;
+
+    if (introPhase === "dark") {
+      targetAmbient = 0.08;
+      targetKey = 0.0;
+      targetSpot = 0.0;
+      targetFill = 0.0;
+    } else if (introPhase === "lighting") {
+      targetAmbient = 0.25;
+      targetKey = 0.3;
+      targetSpot = 2.8;
+      targetFill = 0.1;
+    } else if (introPhase === "screen" || introPhase === "title") {
+      targetAmbient = 0.45;
+      targetKey = 1.0;
+      targetSpot = 3.0;
+      targetFill = 0.3;
+    }
+
+    if (ambientRef.current) {
+      ambientRef.current.intensity = THREE.MathUtils.damp(ambientRef.current.intensity, targetAmbient, 4, delta);
+    }
+    if (dirLightRef.current) {
+      dirLightRef.current.intensity = THREE.MathUtils.damp(dirLightRef.current.intensity, targetKey, 3, delta);
+    }
+    if (deskSpotRef.current) {
+      deskSpotRef.current.intensity = THREE.MathUtils.damp(deskSpotRef.current.intensity, targetSpot, 4, delta);
+    }
+    if (fillLightRef.current) {
+      fillLightRef.current.intensity = THREE.MathUtils.damp(fillLightRef.current.intensity, targetFill, 3, delta);
+    }
+  });
 
   return (
     <group name="studio-lighting">
-      {/* Balanced ambient foundation - preserves shadow depth without crushing blacks */}
-      <ambientLight color="#1a1e2b" intensity={0.65} />
+      {/* Balanced ambient foundation */}
+      <ambientLight ref={ambientRef} color="#1a1e2b" intensity={0.1} />
 
       {/* Main Studio Key Light - warm sunlight/studio key bringing out golden oak grain */}
       <directionalLight
         ref={dirLightRef}
         position={[-2.8, 4.6, 2.6]}
-        intensity={2.2}
+        intensity={0.0}
         color="#fff8ed"
         castShadow
         shadow-mapSize-width={2048}
@@ -38,7 +82,7 @@ export function StudioLighting() {
         target-position={[-0.3, 0.77, 0.1]}
         angle={0.65}
         penumbra={0.8}
-        intensity={3.0}
+        intensity={0.0}
         color="#ffebcc"
         castShadow
         shadow-mapSize-width={1024}
@@ -57,8 +101,9 @@ export function StudioLighting() {
 
       {/* Subtle Warm Dimensional Fill from right side */}
       <directionalLight
+        ref={fillLightRef}
         position={[3.2, 2.5, 1.5]}
-        intensity={0.55}
+        intensity={0.0}
         color="#fed7aa"
       />
 

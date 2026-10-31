@@ -1,10 +1,29 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { InteractiveWrapper } from "@/components/interactions/InteractiveWrapper";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 export function IdCard() {
+  const cardGroupRef = useRef<THREE.Group>(null);
+  const isSelected = useWorkspaceStore((s) => s.selectedObject === "idCard" || s.currentView === "idCard");
+
+  // Animate card lifting and rotating toward the camera when inspected
+  useFrame((_, delta) => {
+    if (!cardGroupRef.current) return;
+    const targetY = isSelected ? 0.045 : 0;
+    const targetRotX = isSelected ? -0.28 : 0;
+    const targetRotY = isSelected ? 0.22 : 0;
+    const targetRotZ = isSelected ? 0.06 : 0;
+
+    cardGroupRef.current.position.y = THREE.MathUtils.damp(cardGroupRef.current.position.y, targetY, 6, delta);
+    cardGroupRef.current.rotation.x = THREE.MathUtils.damp(cardGroupRef.current.rotation.x, targetRotX, 6, delta);
+    cardGroupRef.current.rotation.y = THREE.MathUtils.damp(cardGroupRef.current.rotation.y, targetRotY, 6, delta);
+    cardGroupRef.current.rotation.z = THREE.MathUtils.damp(cardGroupRef.current.rotation.z, targetRotZ, 6, delta);
+  });
+
   // Generate high-resolution procedural canvas texture for the Student ID card
   const cardTexture = useMemo(() => {
     if (typeof document === "undefined") return null;
@@ -143,7 +162,7 @@ export function IdCard() {
       rotation={[0, 0.18, 0]}
       hoverElevation={0.025}
     >
-      <group name="student-id-card">
+      <group ref={cardGroupRef} name="student-id-card">
         {/* Transparent Frosted Acrylic Badge Holder */}
         <mesh position={[0, 0.002, 0]} castShadow receiveShadow>
           <boxGeometry args={[0.13, 0.004, 0.082]} />
@@ -183,4 +202,3 @@ export function IdCard() {
     </InteractiveWrapper>
   );
 }
-

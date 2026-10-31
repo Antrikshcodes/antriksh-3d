@@ -1,10 +1,33 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { InteractiveWrapper } from "@/components/interactions/InteractiveWrapper";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 export function Resume() {
+  const resumeGroupRef = useRef<THREE.Group>(null);
+  const topSheetRef = useRef<THREE.Mesh>(null);
+  const isSelected = useWorkspaceStore((s) => s.selectedObject === "resume" || s.currentView === "resume");
+
+  // Animate resume lifting and opening like a realistic physical document
+  useFrame((_, delta) => {
+    if (!resumeGroupRef.current) return;
+    const targetY = isSelected ? 0.05 : 0;
+    const targetRotX = isSelected ? -0.22 : 0;
+    const targetRotZ = isSelected ? -0.04 : 0;
+
+    resumeGroupRef.current.position.y = THREE.MathUtils.damp(resumeGroupRef.current.position.y, targetY, 6, delta);
+    resumeGroupRef.current.rotation.x = THREE.MathUtils.damp(resumeGroupRef.current.rotation.x, targetRotX, 6, delta);
+    resumeGroupRef.current.rotation.z = THREE.MathUtils.damp(resumeGroupRef.current.rotation.z, targetRotZ, 6, delta);
+
+    if (topSheetRef.current) {
+      const targetCurl = isSelected ? 0.008 : 0.0022;
+      topSheetRef.current.position.y = THREE.MathUtils.damp(topSheetRef.current.position.y, targetCurl, 6, delta);
+    }
+  });
+
   // Generate high-resolution procedural canvas for the printed resume
   const resumeTexture = useMemo(() => {
     if (typeof document === "undefined") return null;
@@ -152,15 +175,25 @@ export function Resume() {
       rotation={[0, -0.1, 0]}
       hoverElevation={0.02}
     >
-      <group name="printed-resume">
-        {/* Paper Sheet Document with slight thickness */}
+      <group ref={resumeGroupRef} name="printed-resume">
+        {/* Underneath Paper Sheet with subtle organic offset */}
+        <mesh
+          position={[0.005, -0.0005, 0.005]}
+          rotation={[0, 0.05, 0]}
+          receiveShadow
+        >
+          <boxGeometry args={[0.22, 0.0015, 0.29]} />
+          <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
+        </mesh>
+
+        {/* Top Paper Sheet Document */}
         <mesh position={[0, 0.001, 0]} castShadow receiveShadow>
           <boxGeometry args={[0.22, 0.002, 0.29]} />
-          <meshStandardMaterial color="#f1f5f9" roughness={0.9} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.9} />
         </mesh>
 
         {/* Crisp Printed Face */}
-        <mesh position={[0, 0.0022, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh ref={topSheetRef} position={[0, 0.0022, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.218, 0.288]} />
           {resumeTexture ? (
             <meshStandardMaterial map={resumeTexture} roughness={0.88} />
@@ -168,18 +201,7 @@ export function Resume() {
             <meshStandardMaterial color="#ffffff" />
           )}
         </mesh>
-
-        {/* Second Page Underneath with slight rotation offset for realistic desk feel */}
-        <mesh
-          position={[0.004, -0.0005, 0.004]}
-          rotation={[0, 0.04, 0]}
-          receiveShadow
-        >
-          <boxGeometry args={[0.22, 0.0015, 0.29]} />
-          <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
-        </mesh>
       </group>
     </InteractiveWrapper>
   );
 }
-

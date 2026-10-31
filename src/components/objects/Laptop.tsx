@@ -1,10 +1,27 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { InteractiveWrapper } from "@/components/interactions/InteractiveWrapper";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 export function Laptop() {
+  const isApproached = useWorkspaceStore((s) => s.currentView === "laptop" || s.hoveredObject === "laptop");
+  const screenLightRef = useRef<THREE.PointLight>(null);
+
+  // Wake up screen illumination when approached or hovered
+  useFrame((_, delta) => {
+    if (screenLightRef.current) {
+      const targetIntensity = isApproached ? 0.65 : 0.22;
+      screenLightRef.current.intensity = THREE.MathUtils.damp(
+        screenLightRef.current.intensity,
+        targetIntensity,
+        6,
+        delta
+      );
+    }
+  });
   // Minimalist futuristic developer screen interface
   const screenTexture = useMemo(() => {
     if (typeof document === "undefined") return null;
@@ -242,9 +259,10 @@ export function Laptop() {
 
           {/* Soft Screen Glow onto Space Black keyboard deck */}
           <pointLight
+            ref={screenLightRef}
             position={[0, 0.1, -0.05]}
             color="#38bdf8"
-            intensity={0.35}
+            intensity={0.25}
             distance={0.35}
             decay={2}
           />

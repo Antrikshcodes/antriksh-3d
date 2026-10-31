@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 export function MechanicalKeyboard() {
+  const underglowRef = useRef<THREE.PointLight>(null);
+
   // Keycaps layout for 75% mechanical keyboard
   const keys = useMemo(() => {
     const list = [];
@@ -18,15 +21,14 @@ export function MechanicalKeyboard() {
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        // Skip some positions for spacebar
         if (r === 4 && c >= 4 && c <= 9) continue;
 
-        let color = "#334155"; // Charcoal mods
+        let color = "#334155";
         if (r >= 1 && r <= 3 && c >= 1 && c <= 12) {
-          color = "#64748b"; // Slate alphas
+          color = "#64748b";
         }
-        if (r === 0 && c === 0) color = "#06b6d4"; // Cyan escape accent
-        if (r === 2 && c === 13) color = "#06b6d4"; // Enter accent
+        if (r === 0 && c === 0) color = "#06b6d4";
+        if (r === 2 && c === 13) color = "#06b6d4";
 
         list.push({
           x: startX + c * (keyWidth + gap),
@@ -40,6 +42,14 @@ export function MechanicalKeyboard() {
 
     return list;
   }, []);
+
+  // Subtle breathing keyboard underglow illumination
+  useFrame((state) => {
+    if (underglowRef.current) {
+      const t = state.clock.getElapsedTime();
+      underglowRef.current.intensity = 0.18 + Math.sin(t * 1.8) * 0.08;
+    }
+  });
 
   return (
     <group
@@ -95,15 +105,15 @@ export function MechanicalKeyboard() {
         />
       </mesh>
 
-      {/* Subtle underglow accent between keycaps */}
+      {/* Breathing underglow illumination between keycaps */}
       <pointLight
-        position={[0, 0.022, 0]}
+        ref={underglowRef}
+        position={[0, 0.024, 0]}
         color="#38bdf8"
-        intensity={0.15}
-        distance={0.3}
+        intensity={0.22}
+        distance={0.35}
         decay={2}
       />
     </group>
   );
 }
-

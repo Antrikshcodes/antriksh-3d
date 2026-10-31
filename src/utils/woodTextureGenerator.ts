@@ -169,3 +169,4 @@ export function generateOakWoodPBRTextures() {
 
   return { albedo: albedoTexture, roughness: roughnessTexture, bump: bumpTexture };
 }
+
