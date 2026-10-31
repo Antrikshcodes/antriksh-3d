@@ -9,15 +9,15 @@ export function StudioLighting() {
 
   return (
     <group name="studio-lighting">
-      {/* Subtle ambient foundation - keeps dark areas readable without flattening */}
-      <ambientLight color="#182030" intensity={0.7} />
+      {/* Balanced ambient foundation - preserves shadow depth without crushing blacks */}
+      <ambientLight color="#1a1e2b" intensity={0.65} />
 
-      {/* Main Studio Key Light with soft realistic shadows */}
+      {/* Main Studio Key Light - warm sunlight/studio key bringing out golden oak grain */}
       <directionalLight
         ref={dirLightRef}
         position={[-2.8, 4.6, 2.6]}
-        intensity={2.0}
-        color="#f8fafc"
+        intensity={2.2}
+        color="#fff8ed"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -31,15 +31,15 @@ export function StudioLighting() {
         shadow-radius={2.5}
       />
 
-      {/* Desk Task Lamp Light - warm cone illuminating center-left desk */}
+      {/* Desk Task Lamp Light - warm cone illuminating center-left desk & Space Black laptop */}
       <spotLight
         ref={deskSpotRef}
         position={[-0.75, 1.35, -0.1]}
         target-position={[-0.3, 0.77, 0.1]}
         angle={0.65}
         penumbra={0.8}
-        intensity={2.8}
-        color="#ffe8c8"
+        intensity={3.0}
+        color="#ffebcc"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -49,26 +49,26 @@ export function StudioLighting() {
       {/* Futuristic AI Lab Monitor Backlight Glow (Subtle Cyan Bias) */}
       <pointLight
         position={[0.0, 1.15, -0.32]}
-        intensity={1.4}
+        intensity={1.3}
         distance={2.2}
         decay={2}
         color="#00e5ff"
       />
 
-      {/* Subtle Warm Fill Light from opposite side for dimensional rim separation */}
+      {/* Subtle Warm Dimensional Fill from right side */}
       <directionalLight
         position={[3.2, 2.5, 1.5]}
-        intensity={0.6}
-        color="#93c5fd"
+        intensity={0.55}
+        color="#fed7aa"
       />
 
       {/* Under-shelf LED linear glow strip */}
       <pointLight
         position={[0.0, 1.62, -0.48]}
-        intensity={0.9}
+        intensity={0.85}
         distance={1.8}
         decay={2}
-        color="#f1f5f9"
+        color="#f8fafc"
       />
     </group>
   );

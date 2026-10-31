@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
@@ -13,8 +13,6 @@ interface InteractiveWrapperProps {
   rotation?: [number, number, number];
   scale?: number | [number, number, number];
   hoverElevation?: number;
-  highlightColor?: string;
-  className?: string;
 }
 
 export function InteractiveWrapper({
@@ -26,18 +24,15 @@ export function InteractiveWrapper({
   hoverElevation = 0.02,
 }: InteractiveWrapperProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const hoveredObject = useWorkspaceStore((s) => s.hoveredObject);
-  const selectedObject = useWorkspaceStore((s) => s.selectedObject);
-  const setHoveredObject = useWorkspaceStore((s) => s.setHoveredObject);
-  const setSelectedObject = useWorkspaceStore((s) => s.setSelectedObject);
+  
+  // Specific boolean selectors prevent mass re-renders across all 3D objects
+  const isHovered = useWorkspaceStore((s) => s.hoveredObject === id);
+  const isSelected = useWorkspaceStore((s) => s.selectedObject === id);
 
-  const isHovered = hoveredObject === id;
-  const isSelected = selectedObject === id;
-
-  // Smoothly elevate object when hovered
+  // Smoothly elevate object when hovered or selected
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const targetY = (isHovered || isSelected) ? position[1] + hoverElevation : position[1];
+    const targetY = isHovered || isSelected ? position[1] + hoverElevation : position[1];
     groupRef.current.position.y = THREE.MathUtils.damp(
       groupRef.current.position.y,
       targetY,
@@ -49,18 +44,21 @@ export function InteractiveWrapper({
   const handlePointerOver = (e: any) => {
     e.stopPropagation();
     document.body.style.cursor = "pointer";
-    setHoveredObject(id);
+    useWorkspaceStore.getState().setHoveredObject(id);
   };
 
   const handlePointerOut = (e: any) => {
     e.stopPropagation();
     document.body.style.cursor = "auto";
-    setHoveredObject(null);
+    const current = useWorkspaceStore.getState().hoveredObject;
+    if (current === id) {
+      useWorkspaceStore.getState().setHoveredObject(null);
+    }
   };
 
   const handleClick = (e: any) => {
     e.stopPropagation();
-    setSelectedObject(id);
+    useWorkspaceStore.getState().setSelectedObject(id);
   };
 
   return (

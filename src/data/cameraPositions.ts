@@ -9,11 +9,11 @@ export const CAMERA_POSITIONS: Record<CameraViewKey, CameraPositionConfig> = {
     description: "Cinematic complete view of Antriksh Galhotra's AI development studio.",
   },
   laptop: {
-    position: [-0.3, 1.18, 0.62],
-    target: [-0.3, 0.82, 0.08],
-    fov: 34,
-    label: "MacBook Pro",
-    description: "Developer profile, about me, and primary systems workstation.",
+    position: [-0.3, 1.16, 0.62],
+    target: [-0.3, 0.82, 0.1],
+    fov: 33,
+    label: "Space Black MacBook",
+    description: "Space Black workstation, developer identity & core vision.",
   },
   idCard: {
     position: [-0.72, 1.12, 0.46],
@@ -58,3 +58,4 @@ export const CAMERA_POSITIONS: Record<CameraViewKey, CameraPositionConfig> = {
     description: "Direct contact channels, GitHub, LinkedIn, and social presence.",
   },
 };
+

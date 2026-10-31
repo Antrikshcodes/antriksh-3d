@@ -49,3 +49,4 @@ export function WebGLFallback({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+

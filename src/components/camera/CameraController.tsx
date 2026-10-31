@@ -7,8 +7,7 @@ import { OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from "three";
 import { CAMERA_POSITIONS } from "@/data/cameraPositions";
-import { useWorkspaceStore, getWorkspaceState } from "@/hooks/useWorkspaceStore";
-import { CameraViewKey } from "@/types";
+import { useWorkspaceStore } from "@/hooks/useWorkspaceStore";
 
 interface CameraControllerProps {
   onTransitionComplete?: () => void;
@@ -19,9 +18,10 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const currentView = useWorkspaceStore((s) => s.currentView);
   const reducedMotion = useWorkspaceStore((s) => s.reducedMotion);
-  const isTransitioningRef = useRef(false);
+  const isFirstMount = useRef(true);
+  const activeTimeline = useRef<gsap.core.Timeline | null>(null);
 
-  // Initial camera orientation
+  // Initial camera orientation on mount
   useEffect(() => {
     const config = CAMERA_POSITIONS.overview;
     camera.position.set(...config.position);
@@ -35,17 +35,25 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
     }
   }, [camera]);
 
-  // Handle transition when currentView changes
+  // Smooth cinematic GSAP transition when currentView changes
   useEffect(() => {
+    // Skip animation on initial mount since camera is already at overview
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
     const targetConfig = CAMERA_POSITIONS[currentView] || CAMERA_POSITIONS.overview;
     const controls = controlsRef.current;
     if (!controls) return;
 
-    const { setIsTransitioning } = getWorkspaceState();
-    setIsTransitioning(true);
-    isTransitioningRef.current = true;
+    if (activeTimeline.current) {
+      activeTimeline.current.kill();
+    }
 
-    const duration = reducedMotion ? 0.05 : 1.4;
+    useWorkspaceStore.getState().setIsTransitioning(true);
+
+    const duration = reducedMotion ? 0.05 : 1.35;
     const ease = "power2.inOut";
 
     const targetPos = {
@@ -64,9 +72,6 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
       fov: targetConfig.fov,
     };
 
-    const currentFovVal = "fov" in camera ? (camera as THREE.PerspectiveCamera).fov : 45;
-
-    // Timeline for smooth cinematic camera and target interpolation
     const tl = gsap.timeline({
       onUpdate: () => {
         if ("fov" in camera) {
@@ -76,8 +81,7 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
         controls.update();
       },
       onComplete: () => {
-        setIsTransitioning(false);
-        isTransitioningRef.current = false;
+        useWorkspaceStore.getState().setIsTransitioning(false);
         if (onTransitionComplete) onTransitionComplete();
       },
     });
@@ -118,6 +122,8 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
       );
     }
 
+    activeTimeline.current = tl;
+
     return () => {
       tl.kill();
     };
@@ -131,7 +137,7 @@ export function CameraController({ onTransitionComplete }: CameraControllerProps
       dampingFactor={0.05}
       minDistance={0.5}
       maxDistance={6.0}
-      maxPolarAngle={Math.PI / 2 - 0.04} // Prevent camera going below floor
+      maxPolarAngle={Math.PI / 2 - 0.04}
       minPolarAngle={Math.PI / 6}
       rotateSpeed={0.7}
       panSpeed={0.6}

@@ -59,3 +59,4 @@ export interface AchievementInfo {
   category: string;
   description: string;
 }
+

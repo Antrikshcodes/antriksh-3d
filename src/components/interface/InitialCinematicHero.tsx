@@ -7,8 +7,8 @@ import { Monitor, Laptop, Award, Bot, FileText, UserCheck, Smartphone, Maximize2
 
 const NAVIGATION_ITEMS: { key: CameraViewKey; label: string; icon: any }[] = [
   { key: "overview", label: "Full Studio", icon: Maximize2 },
-  { key: "laptop", label: "Laptop", icon: Laptop },
-  { key: "monitor", label: "Terminal", icon: Monitor },
+  { key: "laptop", label: "Space Black Mac", icon: Laptop },
+  { key: "monitor", label: "Curved Monitor", icon: Monitor },
   { key: "idCard", label: "ID Card", icon: UserCheck },
   { key: "resume", label: "Resume", icon: FileText },
   { key: "robot", label: "Robotics", icon: Bot },
@@ -90,3 +90,4 @@ export function InitialCinematicHero() {
     </div>
   );
 }
+

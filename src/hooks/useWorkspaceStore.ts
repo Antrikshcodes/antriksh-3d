@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { create } from "zustand";
 import { CameraViewKey } from "@/types";
 
 interface WorkspaceState {
@@ -12,7 +12,7 @@ interface WorkspaceState {
   performanceTier: "high" | "medium" | "low";
   soundEnabled: boolean;
   reducedMotion: boolean;
-  
+
   // Actions
   setView: (view: CameraViewKey) => void;
   setHoveredObject: (obj: CameraViewKey | null) => void;
@@ -25,29 +25,7 @@ interface WorkspaceState {
   resetToOverview: () => void;
 }
 
-
-
-type Listener<T> = (state: T) => void;
-
-function createStore<T>(initialState: T) {
-  let state = initialState;
-  const listeners = new Set<Listener<T>>();
-
-  return {
-    getState: () => state,
-    setState: (updater: Partial<T> | ((prev: T) => Partial<T>)) => {
-      const next = typeof updater === "function" ? updater(state) : updater;
-      state = { ...state, ...next };
-      listeners.forEach((listener) => listener(state));
-    },
-    subscribe: (listener: Listener<T>) => {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
-    },
-  };
-}
-
-const workspaceStore = createStore<WorkspaceState>({
+export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   currentView: "overview",
   hoveredObject: null,
   selectedObject: null,
@@ -57,80 +35,45 @@ const workspaceStore = createStore<WorkspaceState>({
   soundEnabled: false,
   reducedMotion: false,
 
-  setView: (view) => {
-    workspaceStore.setState({
+  setView: (view) =>
+    set({
       currentView: view,
       isPanelOpen: view !== "overview",
       selectedObject: view === "overview" ? null : view,
-    });
-  },
+    }),
 
-  setHoveredObject: (obj) => {
-    workspaceStore.setState({ hoveredObject: obj });
-  },
+  setHoveredObject: (obj) =>
+    set((state) => (state.hoveredObject === obj ? state : { hoveredObject: obj })),
 
-  setSelectedObject: (obj) => {
-    if (obj) {
-      workspaceStore.setState({
-        selectedObject: obj,
-        currentView: obj,
-        isPanelOpen: true,
-      });
-    } else {
-      workspaceStore.setState({
-        selectedObject: null,
-        currentView: "overview",
-        isPanelOpen: false,
-      });
-    }
-  },
+  setSelectedObject: (obj) =>
+    set({
+      selectedObject: obj,
+      currentView: obj ?? "overview",
+      isPanelOpen: obj !== null,
+    }),
 
-  setIsTransitioning: (val) => {
-    workspaceStore.setState({ isTransitioning: val });
-  },
+  setIsTransitioning: (val) =>
+    set((state) => (state.isTransitioning === val ? state : { isTransitioning: val })),
 
-  setIsPanelOpen: (val) => {
-    workspaceStore.setState({ isPanelOpen: val });
-  },
+  setIsPanelOpen: (val) =>
+    set((state) => (state.isPanelOpen === val ? state : { isPanelOpen: val })),
 
-  togglePanel: () => {
-    const { isPanelOpen } = workspaceStore.getState();
-    workspaceStore.setState({ isPanelOpen: !isPanelOpen });
-  },
+  togglePanel: () =>
+    set((state) => ({ isPanelOpen: !state.isPanelOpen })),
 
-  setPerformanceTier: (tier) => {
-    workspaceStore.setState({ performanceTier: tier });
-  },
+  setPerformanceTier: (tier) =>
+    set({ performanceTier: tier }),
 
-  toggleReducedMotion: () => {
-    const { reducedMotion } = workspaceStore.getState();
-    workspaceStore.setState({ reducedMotion: !reducedMotion });
-  },
+  toggleReducedMotion: () =>
+    set((state) => ({ reducedMotion: !state.reducedMotion })),
 
-  resetToOverview: () => {
-    workspaceStore.setState({
+  resetToOverview: () =>
+    set({
       currentView: "overview",
       selectedObject: null,
       isPanelOpen: false,
-    });
-  },
-});
+    }),
+}));
 
-export function useWorkspaceStore<T>(selector: (state: WorkspaceState) => T): T {
-  const [slice, setSlice] = useState(() => selector(workspaceStore.getState()));
-
-  useEffect(() => {
-    const unsubscribe = workspaceStore.subscribe((state) => {
-      const nextSlice = selector(state);
-      setSlice(nextSlice);
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, [selector]);
-
-  return slice;
-}
-
-export const getWorkspaceState = () => workspaceStore.getState();
-export const setWorkspaceState = workspaceStore.setState;
+export const getWorkspaceState = () => useWorkspaceStore.getState();
+export const setWorkspaceState = useWorkspaceStore.setState;

@@ -60,26 +60,16 @@ export function WorkspaceScene() {
           <Trophies />
           <BooksAndStationery />
 
-          {/* Realistic Floor Contact Shadows */}
+          {/* Realistic Ground Contact Shadows */}
           <ContactShadows
             position={[0, 0.002, 0]}
-            opacity={0.75}
-            scale={6}
-            blur={1.6}
-            far={1.8}
-            resolution={1024}
-            color="#05070a"
-          />
-
-          {/* Desk Surface Contact Shadows */}
-          <ContactShadows
-            position={[0, 0.761, 0]}
-            opacity={0.4}
-            scale={2.2}
-            blur={1.2}
-            far={0.5}
+            opacity={0.7}
+            scale={7}
+            blur={1.8}
+            far={2.2}
             resolution={512}
-            color="#090d14"
+            color="#040609"
+            frames={1}
           />
 
           {/* GSAP & Orbit Camera Controller */}
@@ -89,3 +79,4 @@ export function WorkspaceScene() {
     </div>
   );
 }
+

@@ -129,20 +129,39 @@ export const INTERACTIVE_OBJECTS: Record<string, InteractiveObjectInfo> = {
   },
   laptop: {
     id: "laptop",
-    name: "MacBook Pro",
-    category: "Introduction",
-    tooltip: "Click to view Developer Introduction",
+    name: "Space Black MacBook Pro",
+    category: "Developer Core",
+    tooltip: "Click to inspect Space Black Workstation & Vision",
     summary: "Primary workstation — Code, Systems Architecture & AI Research.",
     details: {
-      title: "About Antriksh Galhotra",
-      subtitle: "Developer & AI Engineer",
+      title: "Antriksh Galhotra // Building The Future",
+      subtitle: "AI, Robotics & Software Developer",
       description:
-        "I am an enthusiastic technologist and computer science student passionate about building intelligent AI systems, autonomous agents, and robust full-stack applications.",
-      tags: ["AI & ML", "Robotics", "Full-Stack", "System Design"],
+        "Building intelligent systems at the intersection of AI, Robotics, and modern software architecture. Focused on high-impact implementations of computer vision, agentic workflows, and spatial computing.",
+      tags: ["Space Black", "AI & ML", "Robotics", "Full-Stack", "System Design"],
       points: [
         "Currently pursuing B.Tech in CS & AI at Newton School of Technology / Rishihood University.",
         "Focused on real-world implementations of computer vision, agentic workflows, and spatial computing.",
         "Active builder in hackathons and tech innovation summits.",
+      ],
+    },
+  },
+  monitor: {
+    id: "monitor",
+    name: "Curved Ultrawide Monitor",
+    category: "Terminal & Neural Hub",
+    tooltip: "Click to inspect Curved Monitor, Terminal & Jarvis AI",
+    summary: "34-inch 21:9 curved display running live terminal, neural telemetry, and Jarvis AI interface.",
+    details: {
+      title: "Interactive Curved Studio Command Center",
+      subtitle: "34\" Curved Display & Jarvis AI Integration",
+      description:
+        "The central control hub for project diagnostics, system builds, and interactive developer terminals. Prepared for Phase 5 Jarvis AI voice orchestration.",
+      tags: ["34\" Curved 21:9", "Developer Terminal", "Jarvis AI Ready", "System Telemetry"],
+      points: [
+        "Modular architecture ready for embedded live terminal emulation.",
+        "Designed for seamless Phase 5 voice & command integration.",
+        "Real-time visual telemetry and neural graph display.",
       ],
     },
   },
@@ -186,25 +205,7 @@ export const INTERACTIVE_OBJECTS: Record<string, InteractiveObjectInfo> = {
       ],
     },
   },
-  monitor: {
-    id: "monitor",
-    name: "Ultrawide Monitor",
-    category: "Terminal & Neural Hub",
-    tooltip: "Click to inspect Developer Terminal & Neural Hub",
-    summary: "High-resolution workspace display showing real-time telemetry and developer console.",
-    details: {
-      title: "Interactive Studio Monitor",
-      subtitle: "Command Center & Future Jarvis Integration",
-      description:
-        "The central control hub for project diagnostics, system builds, and interactive developer terminals. Ready for Phase 5 Jarvis AI orchestration.",
-      tags: ["Developer Terminal", "Jarvis AI Ready", "System Telemetry", "Next.js"],
-      points: [
-        "Modular architecture ready for embedded live terminal emulation.",
-        "Designed for seamless Phase 5 voice & command integration.",
-        "Real-time visual telemetry and neural graph display.",
-      ],
-    },
-  },
+
   robot: {
     id: "robot",
     name: "Robotics Figurine",
@@ -264,3 +265,4 @@ export const INTERACTIVE_OBJECTS: Record<string, InteractiveObjectInfo> = {
     },
   },
 };
+

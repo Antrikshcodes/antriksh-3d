@@ -107,7 +107,7 @@ export function RoomStudio() {
         {/* Center Pneumatic Column */}
         <mesh position={[0, 0.28, 0]} castShadow>
           <cylinderGeometry args={[0.03, 0.03, 0.36, 16]} />
-          <meshStandardMaterial color="#silver" roughness={0.2} metalness={0.9} />
+          <meshStandardMaterial color="#c0c0c0" roughness={0.2} metalness={0.9} />
         </mesh>
         {/* Seat Cushion */}
         <mesh position={[0, 0.48, 0]} castShadow receiveShadow>
@@ -137,3 +137,4 @@ export function RoomStudio() {
     </group>
   );
 }
+
