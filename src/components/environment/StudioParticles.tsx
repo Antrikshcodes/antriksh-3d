@@ -62,3 +62,4 @@ export function StudioParticles({ count = 50 }: { count?: number }) {
     </points>
   );
 }
+
